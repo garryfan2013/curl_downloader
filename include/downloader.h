@@ -12,7 +12,7 @@ public:
 
 	virtual size_t get_file_size(const char *url) = 0;
 
-	virtual size_t download(
+	virtual int download(
 					const char *url, size_t offset, size_t size, const char *path) = 0;
 
 	virtual int destory() = 0;

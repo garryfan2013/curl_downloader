@@ -1,5 +1,7 @@
-#include "http_curl_downloader.h"
-#include "download_manager.h"
+#include <http_curl_downloader.h>
+#include <download_manager.h>
+#include <iostream>
+
 
 #define DEFAULT_THREAD_COUNT 5
 
@@ -8,7 +10,7 @@ int main(int argc, void **argv)
 	//my_downloader http://openstack.org/p/etherpad.tgz 5
 
 	if (argc < 3) {
-		std::out << "usage: my_downloader remote_url local_path [thread_count]"
+		std::cout << "usage: my_downloader remote_url local_path [thread_count]"
 		return 0;
 	}
 

@@ -1,7 +1,7 @@
 OUTPUT = my_downloader
 CCOMPILE = gcc
 CPPCOMPILE = g++
-COMPILEOPTION =  -c -g
+COMPILEOPTION =  -c -g --std=c++11
 INCLUDEDIR	    =	 -I ./include
 LINK = g++
 LINKOPTION = -g -o $(OUTPUT)

@@ -11,8 +11,10 @@ thread_pool::thread_pool(int size)
 
 thread_pool::~thread_pool()
 {
-	while(_worker_list.size() > 0) {
-		thread_worker * w = _worker_list.pop_front();
+	list<thread_worker *>::iterator iter = _worker_list->begin();
+
+	while(iter != _worker_list->end()) {
+		thread_worker *w = _worker_list->pop_front();
 		if (null != w) {
 			delete(w);
 		}

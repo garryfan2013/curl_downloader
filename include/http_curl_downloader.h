@@ -22,12 +22,17 @@ public:
 	size_t size() { return _size; };
 	void size(size_t size) { _size = size; };
 
+	const char *url() { return _url.c_str(); };
+	void url(const char *url) { _url = url; };
+
 	const char *path() { return _path.c_str(); };
 	void path(const char *path) { _path = path; };
 
 private:
 	size_t _offset;
 	size_t _size;
+
+	std::string _url;
 	std::string _path;
 };
 

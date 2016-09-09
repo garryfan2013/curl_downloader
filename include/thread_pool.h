@@ -6,8 +6,9 @@
 #include <pthread.h>
 
 #include <list>
+#include <functional>
 
-typedef int (*worker_function_t)(void *arg);
+typedef std::function<int (void *)> worker_function_t;
 
 typedef enum {
 	THREAD_POOL_STOPPED = -1,
@@ -18,7 +19,7 @@ typedef enum {
 class thread_worker {
 
 public:
-	thread_worker(worker_function_t func, const void *arg);
+	thread_worker(worker_function_t func, void *arg);
 	virtual ~thread_worker();
 
 private:
@@ -33,7 +34,7 @@ public:
 	virtual ~thread_pool();
 
 	int init();
-	int add_worker(worker_function_t func, const void *arg);
+	int add_worker(worker_function_t func, void *arg);
 	void destroy();
 
 private:	

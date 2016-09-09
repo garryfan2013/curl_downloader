@@ -1,5 +1,7 @@
-#include "http_curl_downloader.h"
+#include <http_curl_downloader.h>
 #include <curl/curl.h>
+#include <iostream>
+
 
 using namespace std;
 
@@ -35,7 +37,7 @@ size_t http_curl_downloader::get_file_size(const char *url)
 
 	CURL *curl = curl_easy_init();
 	if (!curl) {
-		std::out << "curl init failed" << std::endl;
+		std::cout << "curl init failed" << std::endl;
 		return 0;
 	}
 
@@ -46,7 +48,7 @@ size_t http_curl_downloader::get_file_size(const char *url)
 	
 	if (CURLE_OK == curl_easy_perform(curl)) {
 		if (CURLE_OK != curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len)) {
-			std::out << "get_file_size failed:" << std::endl;
+			std::cout << "get_file_size failed:" << std::endl;
 			len = 0;
 		}
 	}
@@ -60,11 +62,11 @@ size_t http_curl_downloader::get_file_size(const char *url)
 int http_curl_downloader::download(
 	const char *url, size_t offset, size_t size, const char *path)
 {
-	std::out << "[task]:" << url << " " << offset << " " << size << std:endl;
+	std::cout << "[task]:" << url << " " << offset << " " << size << std:endl;
 
 	CURL *curl = curl_easy_init();
 	if (!curl) {
-		std::out << "download curl init failed" << std::endl;
+		std::cout << "download curl init failed" << std::endl;
 		return -1;
 	}
 
@@ -73,7 +75,7 @@ int http_curl_downloader::download(
 
 	file_block_info *fbi = new file_block_info(offset, size, path);
 	if (!fbi) {
-		std::out << "new file_block_info failed" << std::endl;
+		std::cout << "new file_block_info failed" << std::endl;
 		curl_easy_cleanup();		
 		return -1;
 	}
@@ -90,7 +92,7 @@ int http_curl_downloader::download(
 	delete fbi;
 
 	if (CURLE_OK != code) {
-		std::out << "curl_easy_perform failed:" << code << std::endl;
+		std::cout << "curl_easy_perform failed:" << code << std::endl;
 		return -1;
 	}
 
@@ -117,7 +119,7 @@ size_t _write_function(void *ptr, size_t size, size_t nmemb, void *stream)
 
 	FILE *fp = fopen(fbi->path(), "wb+");
 	if (!fp) {
-		std::out << "open file failed " << fbi->path() << std::endl;
+		std::cout << "open file failed " << fbi->path() << std::endl;
 		pthread_mutex_unlock(lock);
 		return 0;
 	}
@@ -129,7 +131,7 @@ size_t _write_function(void *ptr, size_t size, size_t nmemb, void *stream)
 	if (n != bytes_to_write) {
 		//To be added here , what if the bytes actually written , not equal to the bytes
 		//we should write into the file, the strategy needs to be improved in the future
-		std::out << "fwrite " << n << " bytes, but we should write " << bytes_to_write << " bytes"
+		std::cout << "fwrite " << n << " bytes, but we should write " << bytes_to_write << " bytes"
 	}
 
 	fbi->offset(fbi->offset() + bytes_to_write);

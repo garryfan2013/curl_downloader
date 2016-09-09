@@ -30,10 +30,10 @@ public:
 	int stop();	
 		
 private:
+	int _wrapper_worker_function(void *arg);
+
 	int _thread_count;
 	int _file_size;
-
-	FILE *_file;
 	
 	std::string _url;
 	std::string _path;
