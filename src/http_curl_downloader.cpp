@@ -2,7 +2,6 @@
 #include <curl/curl.h>
 #include <iostream>
 
-
 using namespace std;
 
 http_curl_downloader::http_curl_downloader()
@@ -153,7 +152,7 @@ pthread_mutext_t *_get_file_lock(const char *path)
 	} else {
 		pthread_mutex_t *lock = (pthread_mutext_t *)malloc(sizeof(pthread_mutex_t));
 		pthread_mutex_init(lock, NULL);
-		_file_lock_map.insert(pari<string, pthread_mutex_t *>(string(path), lock));
+		_file_lock_map.insert(pair<string, pthread_mutex_t *>(string(path), lock));
 
 		return lock;
 	}

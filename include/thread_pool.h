@@ -19,11 +19,19 @@ typedef enum {
 class thread_worker {
 
 public:
-	thread_worker(worker_function_t func, void *arg);
+	thread_worker(worker_function_t func, void *arg) {
+		_func = func; 
+		_arg = arg;  
+	};
+
 	virtual ~thread_worker();
 
+	worker_function_t function() { return _func; };
+
+	void* arg() { return _arg; };
+
 private:
-	worker_function_t _function;
+	worker_function_t _func;
 	void * _arg;
 };
 
@@ -37,8 +45,9 @@ public:
 	int add_worker(worker_function_t func, void *arg);
 	void destroy();
 
-private:	
-	void* _thread_process_routine(void *arg);
+private:
+	void *_process_function();
+	static void *_wrapper_process_function(void *arg);
 		
 	std::list<thread_worker *> *_worker_list;
 

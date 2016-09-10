@@ -47,8 +47,7 @@ int thread_pool::init()
 	pthread_cond_init(&_cond, NULL);
 
 	for(int i=0; i<_pool_size; i++) {
-		pthread_create(&(_threads[i]), NULL, 
-			std::bind(&thread_pool::_thread_process_routine, this, std::placeholders::_1), NULL);
+		pthread_create(&(_threads[i]), NULL, _wrapper_process_function, NULL);
 	}
 
 	_status = THREAD_POOL_RUNNING;
@@ -67,17 +66,17 @@ int thread_pool::add_worker(worker_function_t func, void *arg)
 
 	pthread_mutex_lock(&_lock);
 	_worker_list->push_back(w);
-	pthrad_mutex_unlock(&_lock);
+	pthread_mutex_unlock(&_lock);
 	
 	return 0;
 }
 
-void* thread_pool::_thread_process_routine(void *arg)
+void* thread_pool::_process_function()
 {
 	while(true) {
 		pthread_mutex_lock(&_lock);
 		
-		while(_worker_list.size() == 0) {
+		while(_worker_list->size() == 0) {
 			pthread_cond_wait(&_cond, &_lock);
 		}
 
@@ -86,13 +85,22 @@ void* thread_pool::_thread_process_routine(void *arg)
 			pthread_exit(NULL);
 		}
 
-		thread_worker *worker = _worker_list.pup_front();
-		(*(worker->func))(worker->arg);
+		std::list<thread_worker *>::iterator iter = _worker_list->begin();		
+		thread_worker *worker = *iter;
+		_worker_list->pop_front();
+		(worker->function())(worker->arg());
 
 		delete(worker);
 		worker = NULL;
 	}
 
 	pthread_exit(NULL);
+	return NULL;
+}
+
+void* thread_pool::_wrapper_process_function(void *arg)
+{
+	thread_pool *tp = static_cast<thread_pool *>(arg);
+	return tp->_process_function();
 }
 

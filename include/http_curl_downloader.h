@@ -1,17 +1,19 @@
 #ifndef _HTTP_CURL_DOWNLOADER_H
 #define _HTTP_CURL_DOWNLOADER_H
 
+#include <string>
+#include <map>
 
-#include <sys/types.h>
+#include <downloader.h>
 
 class file_block_info
 {
 public:
 	file_block_info(size_t offset, size_t size, const char *path) 
 	{
-		_offseet = offset;
+		_offset = offset;
 		_size = size;
-		_file = file;
+		_path = path;
 	};
 
 	virtual ~file_block_info() {};
@@ -36,7 +38,7 @@ private:
 	std::string _path;
 };
 
-class http_curl_downloader public downloader
+class http_curl_downloader: public downloader
 {
 public:
 	http_curl_downloader();
