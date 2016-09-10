@@ -38,9 +38,9 @@ public:
 	void destroy();
 
 private:	
-	void _thread_process_routine();
+	void* _thread_process_routine(void *arg);
 		
-	std::list<thread_worker> *_worker_list;
+	std::list<thread_worker *> *_worker_list;
 
 	int _pool_size;
 	int _free_count;

@@ -1,5 +1,5 @@
 
-#include "thread_pool.h"
+#include <thread_pool.h>
 #include <functional>
 
 thread_pool::thread_pool(int size)
@@ -11,23 +11,25 @@ thread_pool::thread_pool(int size)
 
 thread_pool::~thread_pool()
 {
-	list<thread_worker *>::iterator iter = _worker_list->begin();
+	std::list<thread_worker *>::iterator iter = _worker_list->begin();
 
 	while(iter != _worker_list->end()) {
-		thread_worker *w = _worker_list->pop_front();
-		if (null != w) {
+		thread_worker *w = *iter;
+		if (NULL != w) {
 			delete(w);
 		}
+
+		iter++;
 	}
 
-	if (null != _worker_list) {
+	if (NULL != _worker_list) {
 		delete(_worker_list);
-		_worker_list = null;
+		_worker_list = NULL;
 	}
 
-	if (null != _threads) {
+	if (NULL != _threads) {
 		free(_threads);
-		_threads = null;
+		_threads = NULL;
 	}
 }
 
@@ -38,15 +40,15 @@ int thread_pool::init()
 		return -1;		
 	}
 
-	_worker_list = new list<thread_worker>();
-	_threads = (pthrad_t *)malloc(sizeof(pthread_t)*_pool_size);
+	_worker_list = new std::list<thread_worker *>();
+	_threads = (pthread_t *)malloc(sizeof(pthread_t)*_pool_size);
 	
-	pthread_mutex_init(&_lock);
-	pthread_cond_init(&_cond);
+	pthread_mutex_init(&_lock, NULL);
+	pthread_cond_init(&_cond, NULL);
 
-	for(int i=0; i<_poo_size; i++) {
-		pthread_create(&(threads[i]), null, 
-			std::bind(this, thread_pool::thread_process_routine));
+	for(int i=0; i<_pool_size; i++) {
+		pthread_create(&(_threads[i]), NULL, 
+			std::bind(&thread_pool::_thread_process_routine, this, std::placeholders::_1), NULL);
 	}
 
 	_status = THREAD_POOL_RUNNING;
@@ -70,7 +72,7 @@ int thread_pool::add_worker(worker_function_t func, void *arg)
 	return 0;
 }
 
-void thread_pool::thread_process_routine()
+void* thread_pool::_thread_process_routine(void *arg)
 {
 	while(true) {
 		pthread_mutex_lock(&_lock);
