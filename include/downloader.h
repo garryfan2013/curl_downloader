@@ -13,9 +13,10 @@ public:
 	virtual size_t get_file_size(const char *url) = 0;
 
 	virtual int download(const char *remote_url, 
-						const char *local_path, 
 						size_t offset, 
-						size_t size) = 0;
+						size_t size,
+						FILE *file,
+						pthread_mutex_t *lock) = 0;
 
 	virtual int destroy() = 0;
 };

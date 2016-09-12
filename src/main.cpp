@@ -41,5 +41,6 @@ int main(int argc, char **argv)
 	mgr->init();
 	mgr->start();
 	mgr->wait();
+	mgr->stop();
 	return 0;
 }

@@ -4,7 +4,6 @@
 
 using namespace std;
 
-map<string, pthread_mutex_t *> http_curl_downloader::_file_lock_map;
 
 http_curl_downloader::http_curl_downloader()
 {
@@ -13,17 +12,7 @@ http_curl_downloader::http_curl_downloader()
 
 http_curl_downloader::~http_curl_downloader()
 {
-	map<string, pthread_mutex_t *>::iterator iter;
-	iter = _file_lock_map.begin();
 
-	while(iter != http_curl_downloader::_file_lock_map.end()) {
-		if (NULL != iter->second) {
-			delete iter->second;
-			iter->second = NULL;
-		}
-
-		iter++;
-	}
 }
 
 int http_curl_downloader::init()
@@ -64,7 +53,7 @@ size_t http_curl_downloader::get_file_size(const char *url)
 
 
 int http_curl_downloader::download(
-	const char *remote_url, const char *local_path, size_t offset, size_t size)
+	const char *remote_url, size_t offset, size_t size, FILE *file, pthread_mutex_t *lock)
 {
 	std::cout << "[task]:" << remote_url << " " << offset << " " << size << std::endl;
 
@@ -77,7 +66,7 @@ int http_curl_downloader::download(
 	char range[32] = {0};
 	snprintf(range, 32, "%lu-%lu", offset, (offset + size - 1));
 
-	file_block_info *fbi = new file_block_info(offset, size, local_path);
+	file_block_info *fbi = new file_block_info(offset, size, file, lock);
 	if (!fbi) {
 		std::cout << "new file_block_info failed" << std::endl;
 		curl_easy_cleanup(curl);	
@@ -119,22 +108,22 @@ size_t http_curl_downloader::_write_function(void *ptr, size_t size, size_t nmem
 {
 	file_block_info *fbi = static_cast<file_block_info *>(stream);
 
-	pthread_mutex_t *lock = http_curl_downloader::_get_file_lock(fbi->path());
+	pthread_mutex_t *lock = fbi->lock();
 	pthread_mutex_lock(lock);
 
 	std::cout << "onWrite fbi: " << fbi->offset() << " " << fbi->size() << std::endl;
 	std::cout << "onWrtie cb: " << size*nmemb << std::endl; 
 
-	FILE *fp = fopen(fbi->path(), "wb+");
+	FILE *fp = fbi->file();
 	if (!fp) {
-		std::cout << "open file failed " << fbi->path() << std::endl;
+		std::cout << "file block info invalid FILE " << std::endl;
 		pthread_mutex_unlock(lock);
 		return 0;
 	}
 
-	size_t bytes_to_write = ((nmemb*size) > fbi->size())?(fbi->size()):(nmemb*size);
-
 	fseek(fp, fbi->offset(), SEEK_SET);
+	
+	size_t bytes_to_write = ((nmemb*size) > fbi->size())?(fbi->size()):(nmemb*size);
 	size_t n = fwrite(ptr, 1, bytes_to_write, fp);
 	if (n != bytes_to_write) {
 		//To be added here , what if the bytes actually written , not equal to the bytes
@@ -150,27 +139,8 @@ size_t http_curl_downloader::_write_function(void *ptr, size_t size, size_t nmem
 	fbi->offset(fbi->offset() + bytes_to_write);
 	fbi->size(fbi->size() - bytes_to_write);
 
-	fclose(fp);	
-
 	pthread_mutex_unlock(lock);
 
 	return n;
-}
-
-pthread_mutex_t *http_curl_downloader::_get_file_lock(const char *path)
-{
-	map<string, pthread_mutex_t *>::iterator it = 
-							http_curl_downloader::_file_lock_map.find(path);
-
-	if (it != http_curl_downloader::_file_lock_map.end()) {
-		return it->second;
-	} else {
-		pthread_mutex_t *lock = (pthread_mutex_t *)malloc(sizeof(pthread_mutex_t));
-		pthread_mutex_init(lock, NULL);
-		http_curl_downloader::_file_lock_map.insert(
-							pair<string, pthread_mutex_t *>(string(path), lock));
-
-		return lock;
-	}
 }
 

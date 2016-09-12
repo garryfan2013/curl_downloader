@@ -10,8 +10,6 @@ using namespace std;
 
 
 typedef struct {
-	string url;
-	string path;
 	size_t offset;
 	size_t size;
 	class download_manager *manager;
@@ -35,18 +33,23 @@ public:
 
 	int start();
 
-	int download(const char *remote_url, const char *local_path, size_t offset, size_t size);
+	int download_file_block(size_t offset, size_t size);
 
 	void wait();
 
 	int stop();	
 		
 private:
+	void _clean_up();
+
 	static int _wrapper_worker_function(void *arg);
 	static worker_arg_t *_worker_args;
 
 	int _thread_count;
 	int _file_size;
+
+	FILE *_file;
+	pthread_mutex_t _file_lock;
 	
 	std::string _url;
 	std::string _path;
