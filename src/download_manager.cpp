@@ -2,6 +2,8 @@
 #include <iostream>
 #include <functional>
 
+worker_arg_t *download_manager::_worker_args = NULL;
+
 download_manager::download_manager(downloader *downloader)
 {
 	_downloader = downloader;
@@ -50,25 +52,34 @@ int download_manager::init()
 	}
 
 	_thread_pool = new thread_pool(_thread_count);
-	if ( NULL == _thread_pool || _thread_pool->init() < 0 ) {
+	if (NULL == _thread_pool || _thread_pool->init() < 0) {
 		std::cout << "thread pool init failed" << std::endl;
+		return -1;
+	}
+
+	_worker_args = new worker_arg_t[_thread_count]();
+	if (!_worker_args) {
+		std::cout << "woker_args init failed" << std::endl;
 		return -1;
 	}
 
 	return 0;
 }
 
-typedef struct {
-	const char *url;
-	size_t offset;
-	size_t size;
-	const char *path;
-}_worker_arg_t;
-
 int download_manager::_wrapper_worker_function(void *arg)
 {
-	_worker_arg_t * wa = static_cast<_worker_arg_t *>(arg);
-	return _downloader->download(wa->url, wa->offset, wa->size, wa->path);
+	worker_arg_t *wa = static_cast<worker_arg_t *>(arg);
+	download_manager *dm = wa->manager;
+	return dm->download(wa->url.c_str(), 
+						wa->path.c_str(), 
+						wa->offset, 
+						wa->size);
+}
+
+int download_manager::download(
+	const char *remote_url, const char *local_path, size_t offset, size_t size)
+{
+	return _downloader->download(remote_url, local_path, offset, size );
 }
 
 int download_manager::start()
@@ -80,17 +91,20 @@ int download_manager::start()
 		int offset = i*block_size;
 		int size = (i == (_thread_count - 1))?block_size:last_block_size;
 
-		_worker_arg_t wa;
-		wa.url = _url.c_str();
-		wa.offset = offset;
-		wa.size = size;
-		wa.path = _path.c_str();
+		_worker_args[i].url = _url;
+		_worker_args[i].offset = offset;
+		_worker_args[i].size = size;
+		_worker_args[i].path = _path;
+		_worker_args[i].manager = this;
 
-		worker_function_t fp = std::bind(&download_manager::_wrapper_worker_function, 
-										this, 
-										std::placeholders::_1);
-		_thread_pool->add_worker(fp, static_cast<void *>(&wa));
+		_thread_pool->add_worker(download_manager::_wrapper_worker_function,
+									 static_cast<void *>(&(_worker_args[i])));
 	}
+}
+
+void download_manager::wait()
+{
+	_thread_pool->wait_all();
 }
 
 int download_manager::stop()

@@ -5,17 +5,19 @@
 class downloader
 {
 public:
-	downloader();
-	virtual ~downloader();
+	downloader() {};
+	virtual ~downloader() {};
 
 	virtual int init() = 0;
 
 	virtual size_t get_file_size(const char *url) = 0;
 
-	virtual int download(
-					const char *url, size_t offset, size_t size, const char *path) = 0;
+	virtual int download(const char *remote_url, 
+						const char *local_path, 
+						size_t offset, 
+						size_t size) = 0;
 
-	virtual int destory() = 0;
+	virtual int destroy() = 0;
 };
 
 

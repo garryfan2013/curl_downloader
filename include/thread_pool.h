@@ -8,7 +8,7 @@
 #include <list>
 #include <functional>
 
-typedef std::function<int (void *)> worker_function_t;
+typedef int (*worker_function_t) (void *);
 
 typedef enum {
 	THREAD_POOL_STOPPED = -1,
@@ -24,7 +24,7 @@ public:
 		_arg = arg;  
 	};
 
-	virtual ~thread_worker();
+	virtual ~thread_worker() {};
 
 	worker_function_t function() { return _func; };
 
@@ -42,8 +42,12 @@ public:
 	virtual ~thread_pool();
 
 	int init();
+
 	int add_worker(worker_function_t func, void *arg);
+
 	void destroy();
+
+	void wait_all();
 
 private:
 	void *_process_function();

@@ -46,20 +46,22 @@ public:
 
 	int init();
 
-	int get_file_size(const char* url);
+	size_t get_file_size(const char *url);
 
-	int download(const char* url, const int offset, const int size, const char *path);
+	int download(const char *remote_url, 
+				const char *local_path, 
+				const size_t offset, 
+				const size_t size);
 
 	int destroy();
 
-private:
-	static pthread_mutex_t _get_file_lock(const char *path);
+	static pthread_mutex_t* _get_file_lock(const char *path);
+	static std::map<std::string, pthread_mutex_t *> _file_lock_map;
 
+private:
 	static size_t _header_function(void *ptr, size_t size, size_t nmemb, void *stream);
 
 	static size_t _write_function(void *ptr, size_t size, size_t nmemb, void *stream);
-
-	static std::map<std::string, pthread_mutex_t *> _file_lock_map;
 };
 
 

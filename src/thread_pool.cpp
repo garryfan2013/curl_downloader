@@ -1,6 +1,9 @@
 
 #include <thread_pool.h>
 #include <functional>
+#include <iostream>
+
+#define THREAD_RUN_ONESHOT true
 
 thread_pool::thread_pool(int size)
 {
@@ -36,7 +39,7 @@ thread_pool::~thread_pool()
 int thread_pool::init()
 {
 	if (_pool_size <= 0) {
-		printf("Wrong pool size!\n");
+		std::cout << "Wrong pool size!" << std::endl;
 		return -1;		
 	}
 
@@ -46,12 +49,12 @@ int thread_pool::init()
 	pthread_mutex_init(&_lock, NULL);
 	pthread_cond_init(&_cond, NULL);
 
+	_status = THREAD_POOL_RUNNING;
+
 	for(int i=0; i<_pool_size; i++) {
-		pthread_create(&(_threads[i]), NULL, _wrapper_process_function, NULL);
+		pthread_create(&(_threads[i]), NULL, _wrapper_process_function, this);
 	}
 
-	_status = THREAD_POOL_RUNNING;
-	
 	return 0;
 }
 
@@ -66,9 +69,18 @@ int thread_pool::add_worker(worker_function_t func, void *arg)
 
 	pthread_mutex_lock(&_lock);
 	_worker_list->push_back(w);
+	pthread_cond_signal(&_cond);
 	pthread_mutex_unlock(&_lock);
 	
 	return 0;
+}
+
+void thread_pool::wait_all()
+{
+	for(int i=0; i<_pool_size; i++) {
+		std::cout << "join " << i << std::endl;
+		pthread_join(_threads[i], NULL);
+	}
 }
 
 void* thread_pool::_process_function()
@@ -88,10 +100,17 @@ void* thread_pool::_process_function()
 		std::list<thread_worker *>::iterator iter = _worker_list->begin();		
 		thread_worker *worker = *iter;
 		_worker_list->pop_front();
+
+		pthread_mutex_unlock(&_lock);
+
 		(worker->function())(worker->arg());
 
 		delete(worker);
 		worker = NULL;
+
+		if (THREAD_RUN_ONESHOT) {
+			break;
+		}
 	}
 
 	pthread_exit(NULL);
