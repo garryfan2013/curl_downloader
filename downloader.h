@@ -1,6 +1,14 @@
+/* 
+ * downloader.h
+ * description: abstract class for base downloader
+ * Author: xxx<xxx@gmail.com>
+ */
+
 #ifndef _DOWNLOADER_H
 #define _DOWNLOADER_H
 
+#include <stdio.h>
+#include <pthread.h>
 
 class downloader
 {

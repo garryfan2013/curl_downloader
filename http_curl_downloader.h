@@ -1,10 +1,15 @@
+/* 
+ * http_curl_downloader.h
+ * description: http curl implementation of downloader
+ * Author: xxx<xxx@gmail.com>
+ */ 
+
 #ifndef _HTTP_CURL_DOWNLOADER_H
 #define _HTTP_CURL_DOWNLOADER_H
 
+#include "downloader.h"
 #include <string>
 #include <map>
-
-#include <downloader.h>
 
 class file_block_info
 {
@@ -19,16 +24,16 @@ public:
 
 	virtual ~file_block_info() {};
 
-	size_t offset() { return _offset; };\
+	size_t offset() const { return _offset; };\
 	void offset(size_t offset) { _offset = offset; };
 
-	size_t size() { return _size; };
+	size_t size() const { return _size; };
 	void size(size_t size) { _size = size; };
 
-	FILE *file() { return _file; };
+	FILE *file() const { return _file; };
 	void file(FILE *file) { _file = file; };
 
-	pthread_mutex_t *lock() { return _lock; };
+	pthread_mutex_t *lock() const { return _lock; };
 	void lock(pthread_mutex_t *lock) { _lock = lock; };
 
 private:
