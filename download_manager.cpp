@@ -8,6 +8,12 @@
 #include "task_manager.h"
 #include "download_manager.h"
 #include <iostream>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
+using namespace std;
 
 typedef struct
 {
@@ -28,11 +34,6 @@ download_manager::download_manager(
 download_manager::~download_manager()
 {
 	_clean_up();
-
-	/*
-	* it's the upper level controller's responsibility to release it. 
-	*/
-	downloader_ = NULL;
 }
 
 void download_manager::set_remote_url(const char *url)
@@ -57,9 +58,9 @@ void download_manager::set_downloader(downloader *downloader)
 
 void download_manager::_clean_up()
 {
-	if (file_) {
-		fclose(file_);
-		file_ = NULL;
+	if (local_fd_ >= 0) {
+		close(local_fd_);
+		local_fd_ = -1;
 	}
 
 	if (task_manager_) {
@@ -68,13 +69,16 @@ void download_manager::_clean_up()
 	}
 
 	if (tasks_) {
-		for (int i=0; i<task_count_; i++) {
+		for (int i = 0; i < task_count_; i++) {
 			if (NULL != tasks_[i].param) {
 				delete static_cast<task_data_t *>(tasks_[i].param);
 			}
 		}
 		delete[] tasks_;
+		tasks_ = NULL;
 	}
+
+	downloader_ = NULL;
 }
 
 int download_manager::init()
@@ -84,17 +88,23 @@ int download_manager::init()
 		std::cout << "download file size not correct" << std::endl;
 		return -1;
 	}
-	
-	file_ = fopen(local_path_.c_str(), "wb+");
-	if (!file_ ) {
-		std::cout << "download_manager open file failed: " 
-						<< local_path_.c_str() << std::endl;
-		return -1;
+
+	int index = 1;
+	while(0 == access(local_path_.c_str(), F_OK)) {
+		char str[32];
+		snprintf(str, 32, "(%d)", index++);
+		int pos = local_path_.find_last_of('.');
+		if (pos == string::npos) {
+			local_path_.append(str);
+		} else {
+			local_path_.insert(pos, str);
+		}
 	}
 
-	if (pthread_mutex_init(&file_lock_, NULL) < 0) {
-		std::cout << "file lock init failed" << std::endl;
-		_clean_up();
+	local_fd_ = open(local_path_.c_str(), O_WRONLY|O_CREAT);
+	if (local_fd_ < 0) {
+		std::cout << "download_manager open file failed: " 
+						<< local_path_.c_str() << std::endl;
 		return -1;
 	}
 
@@ -124,8 +134,7 @@ int download_manager::_wrapper_task_handler(void *arg)
 
 int download_manager::download_file_block(size_t offset, size_t size)
 {
-	return downloader_->download(remote_url_.c_str(), 
-								offset, size, file_, &file_lock_);
+	return downloader_->download(remote_url_.c_str(), offset, size, local_fd_);
 }
 
 int download_manager::start()
@@ -133,7 +142,7 @@ int download_manager::start()
 	size_t block_size = file_size_/task_count_;
 	size_t last_block_size = block_size + file_size_%task_count_;
 
-	for(int i=0; i<task_count_; i++) {
+	for (int i = 0; i < task_count_; i++) {
 		size_t offset = i*block_size;
 		size_t size;
 

@@ -15,10 +15,10 @@
 class download_manager
 {
 public:
-	download_manager(const char *remote_url = NULL, 
-					const char *path = NULL, 
-					size_t count = 0, 
-					downloader *downloader = NULL);
+	download_manager(const char *remote_url, 
+					const char *path, 
+					size_t count, 
+					downloader *downloader);
 	virtual ~download_manager();
 
 	void set_remote_url(const char *url);
@@ -38,9 +38,7 @@ private:
 	static int _wrapper_task_handler(void *arg);
 	
 	size_t file_size_;
-	FILE *file_;
-	pthread_mutex_t file_lock_;
-
+	int local_fd_;
 	std::string remote_url_;
 	std::string local_path_;
 

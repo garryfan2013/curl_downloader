@@ -23,8 +23,7 @@ public:
 	virtual int download(const char *remote_url, 
 						size_t offset, 
 						size_t size,
-						FILE *file,
-						pthread_mutex_t *lock) = 0;
+						int write_fd) = 0;
 
 	virtual int destroy() = 0;
 };

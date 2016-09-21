@@ -10,7 +10,7 @@ task_manager::task_manager()
 
 task_manager::~task_manager()
 {
-
+	thread_list_.clear();
 }
 
 int task_manager::init()
