@@ -60,9 +60,9 @@ int download_manager<T, U>::init()
 		return -1;
 	}
 
-	//if file already exists , add a index to the local file.
+	//if file already exists , add an index to the local file.
 	int index = 1;
-	while(0 == access(local_path_.c_str(), F_OK)) {
+	while (0 == access(local_path_.c_str(), F_OK)) {
 		char str[32];
 		snprintf(str, 32, "(%d)", index++);
 		int pos = local_path_.find_last_of('.');
@@ -71,7 +71,7 @@ int download_manager<T, U>::init()
 		} else {
 			local_path_.insert(pos, str);
 		}
-	}	
+	}
 
 	if (file_handler_.open(local_path_.c_str(), file_size_) < 0) {
 		std::cout << "download_manager open file failed: " 
@@ -80,20 +80,23 @@ int download_manager<T, U>::init()
 	}
 
 	if (downloader_.init() < 0) {
-		_clean_up();
+		file_handler_.close();
 		return -1;
 	}
 
 	if (task_manager_.init() < 0) {
 		std::cout << "thread pool init failed" << std::endl;
-		_clean_up();
+		downloader_.destroy();
+		file_handler_.close();
 		return -1;
 	}
 
 	tasks_ = new task_manager::task_t[task_count_];
 	if (!tasks_) {
 		std::cout << "task holder init failed" << std::endl;
-		_clean_up();
+		downloader_.destroy();
+		file_handler_.close();
+		task_manager_.destroy();
 		return -1;
 	}
 

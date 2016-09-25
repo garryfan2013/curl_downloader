@@ -13,10 +13,9 @@
 #include <sys/mman.h>
 #include <fcntl.h>
 #include <iostream>
-#include <string.h>
-#include <errno.h>
+#include <cstring>
 
-template<typename T>
+template <typename T>
 struct file_handler_traits
 {
 	typedef T handler_type;
@@ -31,7 +30,7 @@ struct file_handler
 
 	int open(const char *local_path, size_t size) 
 	{
-		fd = ::open(local_path, O_WRONLY | O_CREAT);
+		fd = ::open(local_path, O_RDWR | O_CREAT);
 		if (fd < 0) {
 			return -1;
 		}
@@ -70,12 +69,12 @@ struct mmap_file_handler
 			return -1;
 		}
 
-		::lseek(fd, size, SEEK_SET);
+		::lseek(fd, size - 1, SEEK_SET);
 		::write(fd, "a", 1);
 
 		void *ptr = mmap(NULL, size, PROT_WRITE, MAP_SHARED, fd, 0);
 		if (ptr == MAP_FAILED) {
-			std::cout << "mmap failed:" << errno << std::endl;
+			std::cout << "mmap failed:" << std::endl;
 			return -1;
 		}
 
@@ -111,13 +110,13 @@ struct mmap_file_handler
 	size_t size;
 };
 
-template<>
+template <>
 struct file_handler_traits<file_handler>
 {
 	typedef file_handler handler_type;
 };
 
-template<>
+template <>
 struct file_handler_traits<mmap_file_handler>
 {
 	typedef mmap_file_handler handler_type;
@@ -129,32 +128,4 @@ typedef file_handler_traits<mmap_file_handler> mmap_file_handler_type;
 
 
 #endif /* _FILE_HANDLER_TRAITS_H */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 

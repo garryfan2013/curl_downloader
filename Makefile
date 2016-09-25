@@ -1,7 +1,7 @@
 OUTPUT = my_downloader
 CC = gcc
 CPP = g++
-COMPILEOPTION =  -c -g
+COMPILEOPTION =  -c -g -DUSE_MMAP
 INCLUDEDIR =
 LINK = g++
 LINKOPTION = -g -o $(OUTPUT)

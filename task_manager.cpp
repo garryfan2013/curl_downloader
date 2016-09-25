@@ -34,7 +34,7 @@ int task_manager::start_task(task_t &task)
 
 void task_manager::wait_all_task_done()
 {
-	for(list<pthread_t>::iterator iter = thread_list_.begin(); 
+	for (list<pthread_t>::iterator iter = thread_list_.begin(); 
 							iter != thread_list_.end(); iter++) {
 		pthread_join((*iter), NULL);
 	}

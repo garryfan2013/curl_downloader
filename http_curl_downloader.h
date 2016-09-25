@@ -10,7 +10,7 @@
 #include <string>
 #include <map>
 
-template<typename T>
+template <typename T>
 class http_curl_downloader
 {
 public:

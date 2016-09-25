@@ -80,7 +80,7 @@ int http_curl_downloader<T>::download(
 	curl_easy_cleanup(curl);
 
 	if (CURLE_OK != code) {
-		std::cout << "curl_easy_perform failed:" << code << std::endl;
+		std::cout << "curl_easy_perform failed: " << code << std::endl;
 		return -1;
 	}
 
@@ -108,7 +108,6 @@ size_t http_curl_downloader<T>::_write_function(void *ptr, size_t size, size_t n
 	size_t n = info->handler.write(ptr, info->offset, bytes_to_write);
 	if (n != bytes_to_write) {
 		//TO DO
-		perror("file write failed!!!");
 		std::cout << "fwrite " << n << " bytes, but we should write " << bytes_to_write << " bytes";
 	} else {
 		std::cout << "write " << n << std::endl;
