@@ -8,10 +8,7 @@ LINKOPTION = -g -o $(OUTPUT)
 DEFS = 
 LIBDIRS = 
 
-OBJS =  download_manager.o \
-		task_manager.o \
-		http_curl_downloader.o \
-		main.o
+OBJS = task_manager.o main.o
 		 
 SHAREDLIB = ./curl/lib/libcurl.a -lpthread
 

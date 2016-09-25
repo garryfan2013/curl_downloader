@@ -1,3 +1,12 @@
+/* 
+ * file_handler_traits.h
+ * description: traits for normal file handler & mmap file handler
+ * Author: xxx<xxx@gmail.com>
+ */
+
+#ifndef _FILE_HANDLER_TRAITS_H
+#define _FILE_HANDLER_TRAITS_H
+
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -10,111 +19,116 @@
 template<typename T>
 struct file_handler_traits
 {
-	typedef T handle_type;
-
-	bool invalid_handle(T handle);
-	
-	T open(const char *local_path, size_t size = 0);
-
-	size_t write(T handle, const void *data, size_t offset, size_t len);
-
-	void close(T handle );
+	typedef T handler_type;
 };
 
-template<>
-struct file_handler_traits<int>
+struct file_handler
 {
-	typedef int handle_type;
-
-	bool invalid_handle(int handle) {
-		return ((handle < 0)?true:false);
+	file_handler(): fd(-1) , size(0)
+	{
+		
 	}
-	
+
 	int open(const char *local_path, size_t size) 
 	{
-		int fd = ::open(local_path, O_WRONLY | O_CREAT);
-
+		fd = ::open(local_path, O_WRONLY | O_CREAT);
 		if (fd < 0) {
 			return -1;
 		}
 
-		return fd;
+		size = size;
+		return 0;
 	}
 
-	size_t write(int handle, const void *data, size_t offset, size_t len)
+	size_t write(const void *data, size_t offset, size_t len)
 	{
-		return pwrite(handle, data, len, offset);
+		return ::pwrite(fd, data, len, offset);
 	}
 
-	void close(int handle)
+	void close()
 	{
-		::close(handle);
+		::close(fd);
+		fd = -1;
 	}
-};
 
-typedef struct
-{
-	void *map_addr;
 	int fd;
 	size_t size;
-}mmap_handle_t;
+};
 
-template<>
-struct file_handler_traits<mmap_handle_t *>
+struct mmap_file_handler
 {
-	typedef mmap_handle_t *handle_type;
-	
-	bool invalid_handle(mmap_handle_t *handle) {
-		return ((!handle)?true:false);
+	mmap_file_handler(): fd(-1), map_addr(NULL), size(0) 
+	{
+		
 	}
 
-	mmap_handle_t *open(const char *local_path, size_t size)
+	int open(const char *local_path, size_t size)
 	{
-		int fd = ::open(local_path, O_RDWR | O_CREAT);
+		fd = ::open(local_path, O_RDWR | O_CREAT);
 		if (fd < 0) {
 			std::cout << "open " << local_path << " failed" << std::endl;
-			return NULL;
+			return -1;
 		}
+
+		::lseek(fd, size, SEEK_SET);
+		::write(fd, "a", 1);
 
 		void *ptr = mmap(NULL, size, PROT_WRITE, MAP_SHARED, fd, 0);
 		if (ptr == MAP_FAILED) {
 			std::cout << "mmap failed:" << errno << std::endl;
-			return NULL;
+			return -1;
 		}
 
-		mmap_handle_t *handle = new mmap_handle_t;
-		handle->map_addr = ptr;
-		handle->fd = fd;
-		handle->size = size;
-
-		return handle;
+		map_addr = ptr;
+		size = size;
+		return 0;
 	}
 
-	size_t write(mmap_handle_t *handle, const void *data, size_t offset, size_t len)
+	size_t write(const void *data, size_t offset, size_t len)
 	{
-		char *dst = static_cast<char *>(handle->map_addr) + offset;
+		char *dst = static_cast<char *>(map_addr) + offset;
 		const char *src = static_cast<const char *>(data);
 
 		memcpy(dst, src, len);
 		return len;
 	}
 
-	void close(mmap_handle_t *handle)
+	void close()
 	{
-		munmap(handle->map_addr, handle->size);
-		::close(handle->fd);
-		delete handle;
+		if (map_addr) {
+			munmap(map_addr, size);
+			map_addr = NULL;
+		}
+
+		if (fd <= 0) {
+			::close(fd);
+			fd = -1;
+		}
 	}
+	
+	int fd;
+	void *map_addr;
+	size_t size;
 };
 
+template<>
+struct file_handler_traits<file_handler>
+{
+	typedef file_handler handler_type;
+};
 
-typedef file_handler_traits<int> normal_file_handler_type;
+template<>
+struct file_handler_traits<mmap_file_handler>
+{
+	typedef mmap_file_handler handler_type;
+};
 
-typedef file_handler_traits<mmap_handle_t *> mmap_file_handler_type;
+typedef file_handler_traits<file_handler> normal_file_handler_type;
+typedef file_handler_traits<mmap_file_handler> mmap_file_handler_type;
 
 
 
-
+#endif /* _FILE_HANDLER_TRAITS_H */
 
 
 

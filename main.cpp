@@ -1,5 +1,6 @@
-#include "http_curl_downloader.h"
 #include "download_manager.h"
+#include "http_curl_downloader.h"
+#include "file_handler_traits.h"
 #include <iostream>
 #include <stdlib.h>
 
@@ -24,8 +25,7 @@ int main(int argc, char **argv)
 		}
 	}
 
-	http_curl_downloader downloader;
-	download_manager manager(argv[1], argv[2], thread_count, &downloader);
+	download_manager<mmap_file_handler_type> manager(argv[1], argv[2], thread_count);
 
 	if (manager.init() < 0 || manager.start() < 0) {
 		return -1;
