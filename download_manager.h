@@ -8,11 +8,9 @@
 #define _DOWNLOAD_MANAGER_H
 
 #include "task_manager.h"
+#include "http_curl_downloader.h"
 #include <string>
 #include <pthread.h>
-
-template <typename T>
-class http_curl_downloader;
 
 template<typename T, typename U = http_curl_downloader<T> >
 class download_manager
@@ -46,7 +44,6 @@ private:
 
 	std::string remote_url_;
 	std::string local_path_;
-
 	size_t file_size_;
 	typename T::handler_type file_handler_;
 	U downloader_;

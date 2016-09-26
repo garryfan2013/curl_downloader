@@ -76,9 +76,9 @@ int http_curl_downloader<T>::download(
 	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, _write_function);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, static_cast<void *>(&info));
 	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1);
+
 	CURLcode code = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
-
 	if (CURLE_OK != code) {
 		std::cout << "curl_easy_perform failed: " << code << std::endl;
 		return -1;

@@ -1,4 +1,3 @@
-#include "task_manager.h"
 #include <iostream>
 #include <unistd.h>
 #include <stdio.h>
@@ -80,12 +79,13 @@ int download_manager<T, U>::init()
 	}
 
 	if (downloader_.init() < 0) {
+		std::cout << "downloader init failed" << std::endl;
 		file_handler_.close();
 		return -1;
 	}
 
 	if (task_manager_.init() < 0) {
-		std::cout << "thread pool init failed" << std::endl;
+		std::cout << "task manager init failed" << std::endl;
 		downloader_.destroy();
 		file_handler_.close();
 		return -1;
@@ -141,6 +141,8 @@ int download_manager<T, U>::start()
 		tasks_[i].param = static_cast<void *>(tdata);
 		task_manager_.start_task(tasks_[i]);
 	}
+
+	return 0;
 }
 
 template <typename T, typename U>
@@ -155,6 +157,7 @@ int download_manager<T, U>::destroy()
 	task_manager_.destroy();
 	downloader_.destroy();
 	file_handler_.close();
-
 	_clean_up();
+	return 0;
 }
+

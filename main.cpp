@@ -1,5 +1,4 @@
 #include "download_manager.h"
-#include "http_curl_downloader.h"
 #include "file_handler_traits.h"
 #include <iostream>
 #include <stdlib.h>

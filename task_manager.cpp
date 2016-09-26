@@ -28,7 +28,6 @@ int task_manager::start_task(task_t &task)
 	pthread_t tid;
 	pthread_create(&tid, NULL, task_manager::_handle_task, &task);
 	thread_list_.push_back(tid);
-	
 	return 0;
 }
 
@@ -44,7 +43,6 @@ void* task_manager::_handle_task(void *arg)
 {
 	task_t *task = static_cast<task_t *>(arg);
 	(*(task->handler))(task->param);
-
 	return NULL;
 }
 

@@ -30,7 +30,7 @@ struct file_handler
 
 	int open(const char *local_path, size_t size) 
 	{
-		fd = ::open(local_path, O_RDWR | O_CREAT);
+		fd = ::open(local_path, O_RDWR | O_CREAT, 0755);
 		if (fd < 0) {
 			return -1;
 		}
@@ -46,8 +46,10 @@ struct file_handler
 
 	void close()
 	{
-		::close(fd);
-		fd = -1;
+		if (fd >= 0) {
+			::close(fd);
+			fd = -1;
+		}
 	}
 
 	int fd;
@@ -63,12 +65,13 @@ struct mmap_file_handler
 
 	int open(const char *local_path, size_t size)
 	{
-		fd = ::open(local_path, O_RDWR | O_CREAT);
+		fd = ::open(local_path, O_RDWR | O_CREAT, 0755);
 		if (fd < 0) {
 			std::cout << "open " << local_path << " failed" << std::endl;
 			return -1;
 		}
 
+		//Prepare the file for mapping
 		::lseek(fd, size - 1, SEEK_SET);
 		::write(fd, "a", 1);
 
@@ -99,7 +102,7 @@ struct mmap_file_handler
 			map_addr = NULL;
 		}
 
-		if (fd <= 0) {
+		if (fd >= 0) {
 			::close(fd);
 			fd = -1;
 		}

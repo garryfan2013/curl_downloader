@@ -8,7 +8,6 @@
 #define _HTTP_CURL_DOWNLOADER_H
 
 #include <string>
-#include <map>
 
 template <typename T>
 class http_curl_downloader
