@@ -1,7 +1,7 @@
 /* 
  * http_curl_downloader.h
- * description: http curl implementation of downloader
- * Author: xxx<xxx@gmail.com>
+ * Implementation of downloader use http curl
+ * Cao liang<caoliang@gmail.com>
  */ 
 
 #ifndef _HTTP_CURL_DOWNLOADER_H
@@ -30,12 +30,12 @@ public:
 private:
 	struct write_data_info
 	{
-		write_data_info(size_t offset, size_t size, typename T::handler_type handler):
-			offset(offset), size(size), handler(handler) { };
+		write_data_info(size_t offset, size_t size, typename T::handler_type &handler):
+			offset(offset), size(size), handler(&handler) { };
 
 		size_t offset;
 		size_t size;
-		typename T::handler_type handler;
+		typename T::handler_type *handler;
 	};
 
 	static size_t _header_function(void *ptr, size_t size, size_t nmemb, void *stream);

@@ -1,7 +1,7 @@
 /* 
  * file_handler_traits.h
- * description: traits for normal file handler & mmap file handler
- * Author: xxx<xxx@gmail.com>
+ * Traits for normal file handler & mmap file handler
+ * Cao liang<caoliang@gmail.com>
  */
 
 #ifndef _FILE_HANDLER_TRAITS_H

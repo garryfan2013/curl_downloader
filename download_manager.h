@@ -1,16 +1,15 @@
 /* 
  * download_manager.h
- * description: manage the whole download procedure 
- * Author: xxx<xxx@gmail.com>
+ * Manage the whole download procedure 
+ * Cao liang<caoliang@gmail.com>
  */ 
 
 #ifndef _DOWNLOAD_MANAGER_H
 #define _DOWNLOAD_MANAGER_H
 
-#include "task_manager.h"
 #include "http_curl_downloader.h"
+#include "task_manager.h"
 #include <string>
-#include <pthread.h>
 
 template<typename T, typename U = http_curl_downloader<T> >
 class download_manager

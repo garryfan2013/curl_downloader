@@ -1,5 +1,4 @@
 #include "task_manager.h"
-#include <list>
 
 using namespace std;
 

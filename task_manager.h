@@ -1,7 +1,7 @@
 /* 
  * task_manager.h
- * description: simple manager for the threaded tasks
- * Author: xxx<xxx@gmail.com>
+ * Simple manager for threaded tasks
+ * Cao liang<caoliang@gmail.com>
  */ 
 
 #ifndef _TASK_MANAGER_H

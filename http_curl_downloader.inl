@@ -105,7 +105,7 @@ size_t http_curl_downloader<T>::_write_function(void *ptr, size_t size, size_t n
 {
 	write_data_info *info = static_cast<write_data_info *>(stream);
 	size_t bytes_to_write = ((nmemb*size) > info->size)?(info->size):(nmemb*size);
-	size_t n = info->handler.write(ptr, info->offset, bytes_to_write);
+	size_t n = info->handler->write(ptr, info->offset, bytes_to_write);
 	if (n != bytes_to_write) {
 		//TO DO
 		std::cout << "fwrite " << n << " bytes, but we should write " << bytes_to_write << " bytes";
