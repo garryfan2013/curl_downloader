@@ -22,7 +22,7 @@ void task_manager::destroy()
 	thread_list_.clear();
 }
 
-int task_manager::start_task(task_t &task)
+int task_manager::start_task(task_type &task)
 {
 	pthread_t tid;
 	pthread_create(&tid, NULL, task_manager::_handle_task, &task);
@@ -40,7 +40,7 @@ void task_manager::wait_all_task_done()
 
 void* task_manager::_handle_task(void *arg)
 {
-	task_t *task = static_cast<task_t *>(arg);
+	task_type *task = static_cast<task_type *>(arg);
 	(*(task->handler))(task->param);
 	return NULL;
 }

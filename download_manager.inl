@@ -91,7 +91,7 @@ int download_manager<T, U>::init()
 		return -1;
 	}
 
-	tasks_ = new task_manager::task_t[task_count_];
+	tasks_ = new task_manager::task_type[task_count_];
 	if (!tasks_) {
 		std::cout << "task holder init failed" << std::endl;
 		downloader_.destroy();

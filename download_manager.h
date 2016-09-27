@@ -51,7 +51,7 @@ private:
 	
 	size_t task_count_;
 	task_manager task_manager_;
-	task_manager::task_t *tasks_;
+	task_manager::task_type *tasks_;
 };
 
 #include "download_manager.inl"

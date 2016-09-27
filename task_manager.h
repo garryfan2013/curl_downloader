@@ -16,17 +16,17 @@ public:
 	task_manager();
 	virtual ~task_manager();
 
-	typedef int (*task_handler_t)(void *);
-	typedef void *task_param_t;
+	typedef int (*task_handler_type)(void *);
+	typedef void *task_param_type;
 
 	typedef struct 
 	{
-		task_handler_t handler;
-		task_param_t param;
-	}task_t;
+		task_handler_type handler;
+		task_param_type param;
+	}task_type;
 
 	int init();
-	int start_task(task_t &t);
+	int start_task(task_type &t);
 	void wait_all_task_done();
 	void destroy();
 
