@@ -19,19 +19,19 @@ download_manager<T, U>::~download_manager()
 }
 
 template <typename T, typename U>
-void download_manager<T, U>::set_remote_url(const char *url)
+inline void download_manager<T, U>::set_remote_url(const char *url)
 {
 	remote_url_ = url;
 }
 
 template <typename T, typename U>
-void download_manager<T, U>::set_local_path(const char *path)
+inline void download_manager<T, U>::set_local_path(const char *path)
 {
 	local_path_ = path;
 }
 
 template <typename T, typename U>
-void download_manager<T, U>::set_task_count(int count)
+inline void download_manager<T, U>::set_task_count(int count)
 {
 	task_count_ = count;
 }

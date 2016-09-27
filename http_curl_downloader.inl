@@ -41,13 +41,16 @@ size_t http_curl_downloader<T>::get_file_size(const char *url)
 	curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
 	curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, http_curl_downloader::_header_function);
 	
-	if (CURLE_OK == curl_easy_perform(curl)) {
+	CURLcode code = curl_easy_perform(curl);
+	if (CURLE_OK == code) {
 		if (CURLE_OK != curl_easy_getinfo(curl, CURLINFO_CONTENT_LENGTH_DOWNLOAD, &len)) {
-			std::cout << "get_file_size failed:" << std::endl;
+			std::cout << "get_file_size failed: " << std::endl;
 			len = 0;
 		} else {
 			std::cout << "get_file_size " << len << std::endl;
 		}
+	} else {
+		std::cout << "curl_easy_perform failed: " << code << std::endl;
 	}
 
 	curl_easy_cleanup(curl);
@@ -56,7 +59,7 @@ size_t http_curl_downloader<T>::get_file_size(const char *url)
 
 template <typename T>
 int http_curl_downloader<T>::download(
-	const char *remote_url, size_t offset, size_t size, typename T::handler_type &handler)
+	const char *remote_url, size_t offset, size_t size, handler_type &handler)
 {
 	std::cout << "[task]:" << remote_url << " " << offset << " " << size << std::endl;
 
