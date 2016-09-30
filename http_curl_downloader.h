@@ -33,7 +33,7 @@ private:
 	struct write_data_info
 	{
 		write_data_info(size_t offset, size_t size, handler_type &handler):
-			offset(offset), size(size), handler(&handler) 
+			offset(offset), size(size), handler(&handler)
 		{
 		};
 

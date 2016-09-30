@@ -13,13 +13,13 @@ http_curl_downloader<T>::http_curl_downloader()
 template <typename T>
 http_curl_downloader<T>::~http_curl_downloader()
 {
-
+	curl_global_cleanup();
 }
 
 template <typename T>
 int http_curl_downloader<T>::init()
 {
-	curl_global_init(CURL_GLOBAL_ALL);	
+	curl_global_init(CURL_GLOBAL_ALL);
 	return 0;
 }
 

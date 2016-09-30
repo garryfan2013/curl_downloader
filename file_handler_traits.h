@@ -28,6 +28,11 @@ struct file_handler
 		
 	}
 
+	~file_handler()
+	{
+		close();
+	}
+
 	int open(const char *local_path, size_t size) 
 	{
 		fd = ::open(local_path, O_RDWR | O_CREAT, 0755);
@@ -61,6 +66,11 @@ struct mmap_file_handler
 	mmap_file_handler(): fd(-1), map_addr(NULL), size(0) 
 	{
 		
+	}
+
+	~mmap_file_handler() 
+	{
+		close();
 	}
 
 	int open(const char *local_path, size_t size)
