@@ -20,7 +20,7 @@ public:
 	download_manager(const char *remote_url, 
 					const char *path, 
 					size_t count);
-	virtual ~download_manager();
+	~download_manager();
 
 	void set_remote_url(const char *url);
 	void set_local_path(const char *path);

@@ -16,7 +16,7 @@ public:
 	typedef typename T::handler_type handler_type;
 
 	http_curl_downloader();
-	virtual ~http_curl_downloader();
+	~http_curl_downloader();
 
 	int init();
 
