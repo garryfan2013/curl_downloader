@@ -4,7 +4,6 @@ using namespace std;
 
 task_manager::task_manager()
 {
-	
 }
 
 task_manager::~task_manager()

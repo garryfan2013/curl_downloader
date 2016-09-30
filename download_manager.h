@@ -11,6 +11,8 @@
 #include "task_manager.h"
 #include <string>
 
+// T : file handler
+// U : downloader
 template<typename T, typename U = http_curl_downloader<T> >
 class download_manager
 {

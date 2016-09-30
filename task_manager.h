@@ -14,7 +14,7 @@ class task_manager
 {
 public:
 	task_manager();
-	virtual ~task_manager();
+	~task_manager();
 
 	typedef int (*task_handler_type)(void *);
 	typedef void *task_param_type;

@@ -6,8 +6,7 @@ using namespace std;
 
 template <typename T>
 http_curl_downloader<T>::http_curl_downloader()
-{
-	
+{	
 }
 
 template <typename T>

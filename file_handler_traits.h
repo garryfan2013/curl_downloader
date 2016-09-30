@@ -24,8 +24,7 @@ struct file_handler_traits
 struct file_handler
 {
 	file_handler(): fd(-1) , size(0)
-	{
-		
+	{		
 	}
 
 	~file_handler()
@@ -64,8 +63,7 @@ struct file_handler
 struct mmap_file_handler
 {
 	mmap_file_handler(): fd(-1), map_addr(NULL), size(0) 
-	{
-		
+	{		
 	}
 
 	~mmap_file_handler() 

@@ -9,6 +9,7 @@
 
 #include <string>
 
+// T: file handler
 template <typename T>
 class http_curl_downloader
 {

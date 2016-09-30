@@ -7,9 +7,9 @@ using namespace std;
 template <typename T, typename U>
 download_manager<T, U>::download_manager(
 	const char *remote_url, const char *local_path, size_t count):
-	remote_url_(remote_url), local_path_(local_path), task_count_(count)
+	remote_url_(remote_url), local_path_(local_path), 
+	task_count_(count), tasks_(NULL)
 {
-
 }
 
 template <typename T, typename U>
