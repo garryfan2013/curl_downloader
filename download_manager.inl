@@ -8,7 +8,7 @@ template <typename T, typename U>
 download_manager<T, U>::download_manager(
 	const char *remote_url, const char *local_path, size_t count):
 	remote_url_(remote_url), local_path_(local_path), 
-	task_count_(count)
+	thread_count_(count)
 {
 }
 
@@ -30,9 +30,9 @@ inline void download_manager<T, U>::set_local_path(const char *path)
 }
 
 template <typename T, typename U>
-inline void download_manager<T, U>::set_task_count(int count)
+inline void download_manager<T, U>::set_thread_count(int count)
 {
-	task_count_ = count;
+	thread_count_ = count;
 }
 
 template <typename T, typename U>
@@ -81,14 +81,14 @@ int download_manager<T, U>::download_file_block(size_t offset, size_t size)
 template <typename T, typename U>
 int download_manager<T, U>::start()
 {
-	size_t block_size = file_size_/task_count_;
-	size_t last_block_size = block_size + file_size_%task_count_;
+	size_t block_size = file_size_/thread_count_;
+	size_t last_block_size = block_size + file_size_%thread_count_;
 
-	for (int i = 0; i < task_count_; i++) {
+	for (int i = 0; i < thread_count_; i++) {
 		size_t offset = i*block_size;
 		size_t size;
 
-		if (i == (task_count_ - 1)) {
+		if (i == (thread_count_ - 1)) {
 			size = last_block_size;
 		} else {
 			size = block_size;
