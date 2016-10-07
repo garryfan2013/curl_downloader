@@ -23,6 +23,11 @@ int main(int argc, char **argv)
 			thread_count = DEFAULT_THREAD_COUNT;
 		}
 	}
+	
+	// To do :
+	// Add a policy that determines which handler to use in terms of
+	// specified download file features(such as file size) to replace
+	// the compile time determination with runtime determination.
 #ifdef USE_MMAP
 	std::cout << "USE_MMAP" << std::endl;
 	download_manager<mmap_file_handler> manager(argv[1], argv[2], thread_count);
