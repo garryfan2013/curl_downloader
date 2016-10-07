@@ -1,14 +1,14 @@
 OUTPUT = my_downloader
 CC = gcc
 CPP = g++
-COMPILEOPTION =  -c -g -DUSE_MMAP
+COMPILEOPTION =  -c -g -DUSE_MMAP -std=c++11
 INCLUDEDIR =
 LINK = g++
 LINKOPTION = -g -o $(OUTPUT)
 DEFS = 
 LIBDIRS = 
 
-OBJS = task_manager.o main.o
+OBJS = main.o
 		 
 SHAREDLIB = ./curl/lib/libcurl.a -lpthread
 

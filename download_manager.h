@@ -8,8 +8,9 @@
 #define _DOWNLOAD_MANAGER_H
 
 #include "http_curl_downloader.h"
-#include "task_manager.h"
 #include <string>
+#include <vector>
+#include <thread>
 
 // T : file handler
 // U : downloader
@@ -31,29 +32,20 @@ public:
 	int init();
 	int start();
 	int download_file_block(size_t offset, size_t size);
-	void wait();
+	void wait_all_task_done();
 	int destroy();
 		
 private:
-	struct task_data
-	{
-		size_t offset;
-		size_t size;
-		download_manager<T, U> *manager;
-	};
-
-	void _clean_up();
-	static int _wrapper_task_handler(void *arg);
-
+	typedef std::shared_ptr<std::thread> thread_ptr;
+	
 	std::string remote_url_;
 	std::string local_path_;
 	size_t file_size_;
 	handler_type file_handler_;
 	U downloader_;
-	
+
+	std::vector<thread_ptr> threads_;
 	size_t task_count_;
-	task_manager task_manager_;
-	task_manager::task_type *tasks_;
 };
 
 #include "download_manager.inl"

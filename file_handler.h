@@ -60,7 +60,7 @@ struct mmap_file_handler
 	{		
 	}
 
-	~mmap_file_handler() 
+	~mmap_file_handler()
 	{
 		close();
 	}

@@ -8,14 +8,13 @@ template <typename T, typename U>
 download_manager<T, U>::download_manager(
 	const char *remote_url, const char *local_path, size_t count):
 	remote_url_(remote_url), local_path_(local_path), 
-	task_count_(count), tasks_(NULL)
+	task_count_(count)
 {
 }
 
 template <typename T, typename U>
 download_manager<T, U>::~download_manager()
 {
-	_clean_up();
 }
 
 template <typename T, typename U>
@@ -34,20 +33,6 @@ template <typename T, typename U>
 inline void download_manager<T, U>::set_task_count(int count)
 {
 	task_count_ = count;
-}
-
-template <typename T, typename U>
-void download_manager<T, U>::_clean_up()
-{
-	if (tasks_) {
-		for (int i = 0; i < task_count_; i++) {
-			if (NULL != tasks_[i].param) {
-				delete static_cast<task_data *>(tasks_[i].param);
-			}
-		}
-		delete[] tasks_;
-		tasks_ = NULL;
-	}
 }
 
 template <typename T, typename U>
@@ -84,31 +69,7 @@ int download_manager<T, U>::init()
 		return -1;
 	}
 
-	if (task_manager_.init() < 0) {
-		std::cout << "task manager init failed" << std::endl;
-		downloader_.destroy();
-		file_handler_.close();
-		return -1;
-	}
-
-	tasks_ = new task_manager::task_type[task_count_];
-	if (!tasks_) {
-		std::cout << "task holder init failed" << std::endl;
-		downloader_.destroy();
-		file_handler_.close();
-		task_manager_.destroy();
-		return -1;
-	}
-
 	return 0;
-}
-
-template <typename T, typename U>
-int download_manager<T, U>::_wrapper_task_handler(void *arg)
-{
-	task_data *data = static_cast<task_data *>(arg);
-	download_manager<T, U> *dm = data->manager;
-	return dm->download_file_block(data->offset, data->size);
 }
 
 template <typename T, typename U>
@@ -133,31 +94,31 @@ int download_manager<T, U>::start()
 			size = block_size;
 		}
 
-		task_data *tdata = new task_data();
-		tdata->offset = offset;
-		tdata->size = size;
-		tdata->manager = this;
-		tasks_[i].handler = download_manager::_wrapper_task_handler;
-		tasks_[i].param = static_cast<void *>(tdata);
-		task_manager_.start_task(tasks_[i]);
+		thread_ptr tp(new std::thread(&download_manager<T, U>::download_file_block, 
+						this, offset, size));
+		threads_.push_back(tp);
 	}
 
 	return 0;
 }
 
 template <typename T, typename U>
-void download_manager<T, U>::wait()
+void download_manager<T, U>::wait_all_task_done()
 {
-	task_manager_.wait_all_task_done();
+	for (vector<thread_ptr>::iterator iter = threads_.begin();
+							iter != threads_.end(); ) {
+		if ((*iter)->joinable()) {
+			(*iter)->join();
+		}
+		iter = threads_.erase(iter);
+	}
 }
 
 template <typename T, typename U>
 int download_manager<T, U>::destroy()
 {
-	task_manager_.destroy();
 	downloader_.destroy();
 	file_handler_.close();
-	_clean_up();
 	return 0;
 }
 

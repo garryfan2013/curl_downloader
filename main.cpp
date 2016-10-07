@@ -34,7 +34,7 @@ int main(int argc, char **argv)
 		return -1;
 	}
 
-	manager.wait();
+	manager.wait_all_task_done();
 	manager.destroy();
 	return 0;
 }
