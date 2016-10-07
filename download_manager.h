@@ -17,7 +17,7 @@ template<typename T, typename U = http_curl_downloader<T> >
 class download_manager
 {
 public:
-	typedef typename T::handler_type handler_type;
+	typedef T handler_type;
 
 	download_manager(const char *remote_url, 
 					const char *path, 

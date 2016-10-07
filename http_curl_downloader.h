@@ -14,7 +14,7 @@ template <typename T>
 class http_curl_downloader
 {
 public:
-	typedef typename T::handler_type handler_type;
+	typedef T handler_type;
 
 	http_curl_downloader();
 	~http_curl_downloader();

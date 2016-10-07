@@ -1,5 +1,5 @@
 #include "download_manager.h"
-#include "file_handler_traits.h"
+#include "file_handler.h"
 #include <iostream>
 #include <stdlib.h>
 
@@ -25,9 +25,9 @@ int main(int argc, char **argv)
 	}
 #ifdef USE_MMAP
 	std::cout << "USE_MMAP" << std::endl;
-	download_manager<mmap_file_handler_type> manager(argv[1], argv[2], thread_count);
+	download_manager<mmap_file_handler> manager(argv[1], argv[2], thread_count);
 #else
-	download_manager<normal_file_handler_type> manager(argv[1], argv[2], thread_count);
+	download_manager<file_handler> manager(argv[1], argv[2], thread_count);
 #endif
 
 	if (manager.init() < 0 || manager.start() < 0) {

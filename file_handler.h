@@ -4,8 +4,8 @@
  * Cao liang<caoliang@gmail.com>
  */
 
-#ifndef _FILE_HANDLER_TRAITS_H
-#define _FILE_HANDLER_TRAITS_H
+#ifndef _FILE_HANDLER_H
+#define _FILE_HANDLER_H
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -14,12 +14,6 @@
 #include <fcntl.h>
 #include <iostream>
 #include <cstring>
-
-template <typename T>
-struct file_handler_traits
-{
-	typedef T handler_type;
-};
 
 struct file_handler
 {
@@ -121,22 +115,5 @@ struct mmap_file_handler
 	size_t size;
 };
 
-template <>
-struct file_handler_traits<file_handler>
-{
-	typedef file_handler handler_type;
-};
-
-template <>
-struct file_handler_traits<mmap_file_handler>
-{
-	typedef mmap_file_handler handler_type;
-};
-
-typedef file_handler_traits<file_handler> normal_file_handler_type;
-typedef file_handler_traits<mmap_file_handler> mmap_file_handler_type;
-
-
-
-#endif /* _FILE_HANDLER_TRAITS_H */
+#endif /* _FILE_HANDLER_H */
 
