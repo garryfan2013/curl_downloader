@@ -1,6 +1,6 @@
 /* 
  * file_handler.h
- * Normal file handler & mmap file handler simple implementation
+ * Normal file handler simple implementation
  * Cao liang<caoliang@gmail.com>
  */
 

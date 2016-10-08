@@ -15,7 +15,7 @@ void display_usage()
 		"Usage: my_downloader [URL] [OPTION]...\n"
 		"options include:\n"
 		"    -c [COUNT], specify thread count used for downloading\n"
-		"    -o [PATH], specify the output file path for local storage\n"
+		"    -o [PATH], specify the output file path to save\n"
 		<< endl;
 }
 
