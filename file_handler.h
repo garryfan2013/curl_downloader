@@ -14,28 +14,12 @@ struct file_handler
 	file_handler();
 	~file_handler();
 
-	int open(const char *local_path, size_t size);
+	int open(const char *local_path);
 	size_t write(const void *data, size_t offset, size_t len);
 	void close();
 
 private:
 	int fd;
-	size_t size;
-};
-
-struct mmap_file_handler
-{
-	mmap_file_handler();
-	~mmap_file_handler();
-
-	int open(const char *local_path, size_t size);
-	size_t write(const void *data, size_t offset, size_t len);
-	void close();
-
-private:
-	int fd;
-	void *map_addr;
-	size_t size;
 };
 
 #endif /* _FILE_HANDLER_H */

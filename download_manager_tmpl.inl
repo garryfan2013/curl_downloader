@@ -5,7 +5,7 @@
 using namespace std;
 
 template <typename T, typename U>
-download_manager<T, U>::download_manager(
+download_manager_tmpl<T, U>::download_manager_tmpl(
 	const char *remote_url, const char *local_path, size_t count):
 	remote_url_(remote_url), local_path_(local_path), 
 	thread_count_(count)
@@ -13,34 +13,34 @@ download_manager<T, U>::download_manager(
 }
 
 template <typename T, typename U>
-download_manager<T, U>::~download_manager()
+download_manager_tmpl<T, U>::~download_manager_tmpl()
 {
 }
 
 template <typename T, typename U>
-inline void download_manager<T, U>::set_remote_url(const char *url)
+inline void download_manager_tmpl<T, U>::set_remote_url(const char *url)
 {
 	remote_url_ = url;
 }
 
 template <typename T, typename U>
-inline void download_manager<T, U>::set_local_path(const char *path)
+inline void download_manager_tmpl<T, U>::set_local_path(const char *path)
 {
 	local_path_ = path;
 }
 
 template <typename T, typename U>
-inline void download_manager<T, U>::set_thread_count(int count)
+inline void download_manager_tmpl<T, U>::set_thread_count(int count)
 {
 	thread_count_ = count;
 }
 
 template <typename T, typename U>
-int download_manager<T, U>::init()
+int download_manager_tmpl<T, U>::init()
 {
 	file_size_ = downloader_.get_file_size(remote_url_.c_str());
 	if (file_size_ <= 0) {
-		std::cout << "download file size not correct" << std::endl;
+		cout << "download file size not correct" << endl;
 		return -1;
 	}
 
@@ -57,14 +57,14 @@ int download_manager<T, U>::init()
 		}
 	}
 
-	if (file_handler_.open(local_path_.c_str(), file_size_) < 0) {
-		std::cout << "download_manager open file failed: " 
-						<< local_path_.c_str() << std::endl;
+	if (file_handler_.open(local_path_.c_str()) < 0) {
+		cout << "download_manager_tmpl open file failed: " 
+						<< local_path_.c_str() << endl;
 		return -1;
 	}
 
 	if (downloader_.init() < 0) {
-		std::cout << "downloader init failed" << std::endl;
+		cout << "downloader init failed" << endl;
 		file_handler_.close();
 		return -1;
 	}
@@ -73,13 +73,13 @@ int download_manager<T, U>::init()
 }
 
 template <typename T, typename U>
-int download_manager<T, U>::download_file_block(size_t offset, size_t size)
+int download_manager_tmpl<T, U>::download_file_block(size_t offset, size_t size)
 {
 	return downloader_.download(remote_url_.c_str(), offset, size, file_handler_);
 }
 
 template <typename T, typename U>
-int download_manager<T, U>::start()
+int download_manager_tmpl<T, U>::start()
 {
 	size_t block_size = file_size_/thread_count_;
 	size_t last_block_size = block_size + file_size_%thread_count_;
@@ -87,23 +87,22 @@ int download_manager<T, U>::start()
 	for (int i = 0; i < thread_count_; i++) {
 		size_t offset = i*block_size;
 		size_t size;
-
 		if (i == (thread_count_ - 1)) {
 			size = last_block_size;
 		} else {
 			size = block_size;
 		}
 
-		thread_ptr tp(new std::thread(&download_manager<T, U>::download_file_block, 
+		thread_ptr tp(new thread(&download_manager_tmpl<T, U>::download_file_block, 
 						this, offset, size));
-		threads_.push_back(tp);
+		threads_.push_back(move(tp));
 	}
 
 	return 0;
 }
 
 template <typename T, typename U>
-void download_manager<T, U>::wait_all_task_done()
+void download_manager_tmpl<T, U>::wait_all_task_done()
 {
 	for (vector<thread_ptr>::iterator iter = threads_.begin();
 							iter != threads_.end(); ) {
@@ -115,7 +114,7 @@ void download_manager<T, U>::wait_all_task_done()
 }
 
 template <typename T, typename U>
-int download_manager<T, U>::destroy()
+int download_manager_tmpl<T, U>::destroy()
 {
 	downloader_.destroy();
 	file_handler_.close();
