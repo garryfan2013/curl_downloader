@@ -7,7 +7,7 @@
 #ifndef _FILE_HANDLER_H
 #define _FILE_HANDLER_H
 
-#include <cstring>
+#include <cstddef>
 
 struct file_handler
 {

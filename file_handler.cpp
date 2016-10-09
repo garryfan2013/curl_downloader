@@ -1,8 +1,6 @@
 #include "file_handler.h"
 #include <unistd.h>
-#include <sys/types.h>
 #include <sys/stat.h>
-#include <sys/mman.h>
 #include <fcntl.h>
 #include <iostream>
 
@@ -28,7 +26,6 @@ int file_handler::open(const char *local_path)
 
 size_t file_handler::write(const void *data, size_t offset, size_t len)
 {
-	std::cout << "" << offset << " " << len << std::endl;
 	return ::pwrite(fd, data, len, offset);
 }
 

@@ -4,8 +4,7 @@
 
 #define DEFAULT_THREAD_COUNT 5;
 
-#define TEST_URL "http://mirrors.cnnic.cn/apache//httpd/httpd-2.4.23.tar.gz"
-#define TEST_PATH "/home/scutech/Downloads/test.tar.gz"
+//test url: "http://mirrors.cnnic.cn/apache//httpd/httpd-2.4.23.tar.gz"
 
 using namespace std;
 
