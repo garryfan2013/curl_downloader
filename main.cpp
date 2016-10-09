@@ -19,30 +19,32 @@ void display_usage()
 		<< endl;
 }
 
-void make_file_path(const string &url, string &path)
+int make_file_path(const string &url, string &path)
 {
 	int pos = url.find_last_of('/');
-	char cwd[128];
-	getcwd(cwd, 128);
-	path = cwd;
-	path.append(url.substr(pos));
+	char *cwd = getcwd(NULL, 0);
+	if (cwd) {
+		path = cwd;
+		path.append(url.substr(pos));
+		free(cwd);
+		return 0;
+	}
+
+	std::cout << "cant get current working directory" << std::endl;
+	return -1;
 }
 
-int main(int argc, char **argv)
+int parse_args(int argc, char **argv, string &url, string &path, int &cnt)
 {
-	string remote_url = "";
-	string local_path = "";
-	int thread_count = DEFAULT_THREAD_COUNT;
-
 	int ch;
 	while((ch = getopt(argc, argv, "c:o:")) != -1) {
 		switch(ch) {
 			case 'c':
-				thread_count = atoi(optarg);
+				cnt = atoi(optarg);
 				break;
 
 			case 'o':
-				local_path = optarg;
+				path = optarg;
 				break;
 					
 			default:
@@ -55,10 +57,24 @@ int main(int argc, char **argv)
 		display_usage();
 		return -1;
 	}
-	remote_url = argv[optind];
+	url = argv[optind];
+	return 0;
+}
+
+int main(int argc, char **argv)
+{
+	string remote_url = "";
+	string local_path = "";
+	int thread_count = DEFAULT_THREAD_COUNT;
+
+	if ( parse_args(argc, argv, remote_url, local_path, thread_count) < 0 ) {
+		return -1;
+	}
 
 	if ("" == local_path) {
-		make_file_path(remote_url, local_path);
+		if ( make_file_path(remote_url, local_path) < 0) {
+			return -1;
+		}
 	}
 
 	download_manager dm(remote_url.c_str(), local_path.c_str(), thread_count);
