@@ -19,8 +19,6 @@ void display_usage()
 		<< endl;
 }
 
-// To do 
-// It's better to get the real file name from http server other than url
 void make_file_path(const string &url, string &path)
 {
 	int pos = url.find_last_of('/');
