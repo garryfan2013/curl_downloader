@@ -68,8 +68,8 @@ int http_curl_downloader_tmpl<T>::_download(const char *remote_url, write_data_i
 		return -1;
 	}
 
-	char range[32] = {0};
-	snprintf(range, 32, "%lu-%lu", info->offset, (info->offset + info->size - 1));
+	char range[128] = {0};
+	snprintf(range, sizeof(range), "%lu-%lu", info->offset, (info->offset + info->size - 1));
 
 	curl_easy_setopt(curl, CURLOPT_URL, remote_url);
 	curl_easy_setopt(curl, CURLOPT_RANGE, range);
