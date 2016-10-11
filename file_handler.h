@@ -11,15 +11,15 @@
 
 struct file_handler
 {
-	file_handler();
-	~file_handler();
+    file_handler();
+    ~file_handler();
 
-	int open(const char *local_path);
-	size_t write(const void *data, size_t offset, size_t len);
-	void close();
+    int open(const char *local_path);
+    size_t write(const void *data, size_t offset, size_t len);
+    void close();
 
 private:
-	int fd;
+    int fd;
 };
 
 #endif /* _FILE_HANDLER_H */
