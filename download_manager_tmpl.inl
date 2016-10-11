@@ -37,9 +37,15 @@ inline void download_manager_tmpl<T, U>::set_thread_count(int count)
 template <typename T, typename U>
 int download_manager_tmpl<T, U>::init()
 {
+    if (downloader_.init() < 0) {
+        cout << "downloader init failed" << endl;
+        return -1;
+    }
+
     file_size_ = downloader_.get_file_size(remote_url_.c_str());
     if (file_size_ <= 0) {
         cout << "download file size not correct" << endl;
+        downloader_.destroy();
         return -1;
     }
 
@@ -58,14 +64,9 @@ int download_manager_tmpl<T, U>::init()
     }
 
     if (file_handler_.open(local_path_.c_str()) < 0) {
-        cout << "download_manager_tmpl open file failed: " 
+        cout << "file handler open failed: " 
                 << local_path_.c_str() << endl;
-        return -1;
-    }
-
-    if (downloader_.init() < 0) {
-        cout << "downloader init failed" << endl;
-        file_handler_.close();
+        downloader_.destroy();
         return -1;
     }
 
@@ -102,7 +103,7 @@ int download_manager_tmpl<T, U>::start()
 }
 
 template <typename T, typename U>
-void download_manager_tmpl<T, U>::wait_all_task_done()
+void download_manager_tmpl<T, U>::wait_all_tasks_done()
 {
     for (vector<thread_ptr>::iterator iter = threads_.begin();
                                 iter != threads_.end(); ) {

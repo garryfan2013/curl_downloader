@@ -14,7 +14,7 @@
 #include <thread>
 
 // T : Data handler
-// U : downloader
+// U : Downloader
 template<typename T, typename U = http_curl_downloader_tmpl<T> >
 class download_manager_tmpl
 {
@@ -31,7 +31,7 @@ public:
     int init();
     int start();
     int download_file_block(size_t offset, size_t size);
-    void wait_all_task_done();
+    void wait_all_tasks_done();
     int destroy();
 		
 private:

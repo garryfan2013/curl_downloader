@@ -80,7 +80,7 @@ int main(int argc, char **argv)
         return -1;
     }
 
-    dm.wait_all_task_done();
+    dm.wait_all_tasks_done();
     dm.destroy();
     return 0;
 }
