@@ -35,7 +35,7 @@ size_t http_curl_downloader_tmpl<T>::get_file_size(const char *url)
     curl_easy_setopt(curl, CURLOPT_URL, url);
     curl_easy_setopt(curl, CURLOPT_HEADER, 1);
     curl_easy_setopt(curl, CURLOPT_NOBODY, 1);
-    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, http_curl_downloader_tmpl::_header_function);
+    curl_easy_setopt(curl, CURLOPT_HEADERFUNCTION, _header_function);
 	
     double len = 0;
     CURLcode code = curl_easy_perform(curl);
