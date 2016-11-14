@@ -1,49 +1,53 @@
 OUTPUT = my_downloader
-CCOMPILE = gcc
-CPPCOMPILE = g++
-COMPILEOPTION =  -c -g --std=c++11 
-#-D_GLIBCXX_USE_CXX11_ABI=0
-INCLUDEDIR	    =	 -I ./include
+CC = gcc
+CPP = g++
+COMPILEOPTION =  -c -g -DUSE_MMAP -std=c++11
+INCLUDEDIR =
 LINK = g++
 LINKOPTION = -g -o $(OUTPUT)
 DEFS = 
 LIBDIRS = 
 
-OBJS =  ./src/download_manager.o \
-		./src/thread_pool.o \
-		./src/http_curl_downloader.o \
-		./src/main.o
+OBJS = main.o
 		 
-SHAREDLIB = ./lib/libcurl.a -lpthread -lrt
+SHAREDLIB = ./curl/lib/libcurl.a -lpthread
+
+all: $(OBJS:.o:.d) $(OUTPUT)
 
 $(OUTPUT): $(OBJS) $(APPENDLIB)
 	$(LINK) $(LINKOPTION) $(LIBDIRS) $(OBJS) $(SHAREDLIB)
-	rm $(OBJS)
 
 clean: 
-	rm -f $(OBJS)
+	rm -f *.o *.d.* *.d
 	rm -f $(OUTPUT)
-	
-all: clean $(OUTPUT) 
+
 
 .PRECIOUS:%.cpp %.c %.C
 .SUFFIXES:
 .SUFFIXES:  .c .o .cpp .ecpp .pc .ec .C .cc .cxx
 
+%.d: %.cpp
+	@set -e; rm -f $@; \
+	$(CPP) -MM $(COMPILEOPTION) $(INCLUDEDIR) $< > $@.$$$$; \
+	sed 's,\($*\)\.o[ :]*,\1.o $@ : ,g' < $@.$$$$ > $@; \
+	rm -f $@.$$$$
+
+-include $(OBJS:.o=.d)
+
 .cpp.o:
-	$(CPPCOMPILE) -c -o $*.o $(DEFS) $(COMPILEOPTION) $(INCLUDEDIR)  $*.cpp
+	$(CPP) -c -o $*.o $(DEFS) $(COMPILEOPTION) $(INCLUDEDIR)  $*.cpp
 	
 .cc.o:
-	$(CCOMPILE) -c -o $*.o $(COMPILEOPTION) $(INCLUDEDIR)  $*.cx
+	$(CC) -c -o $*.o $(COMPILEOPTION) $(INCLUDEDIR)  $*.cx
 
 .cxx.o:
-	$(CPPCOMPILE) -c -o $*.o $(DEFS) $(COMPILEOPTION) $(INCLUDEDIR)  $*.cxx
+	$(CPP) -c -o $*.o $(DEFS) $(COMPILEOPTION) $(INCLUDEDIR)  $*.cxx
 
 .c.o:
-	$(CCOMPILE) -c -o $*.o $(COMPILEOPTION) $(INCLUDEDIR) $*.c
+	$(CC) -c -o $*.o $(COMPILEOPTION) $(INCLUDEDIR) $*.c
 
 .C.o:
-	$(CPPCOMPILE) -c -o $*.o $(COMPILEOPTION) $(INCLUDEDIR) $*.C	
+	$(CPP) -c -o $*.o $(COMPILEOPTION) $(INCLUDEDIR) $*.C	
 
 .ecpp.C:
 	$(ESQL) -e $(ESQL_OPTION) $(INCLUDEDIR) $*.ecpp 
