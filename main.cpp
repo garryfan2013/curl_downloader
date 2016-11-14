@@ -1,40 +1,86 @@
 #include "download_manager.h"
-#include "file_handler.h"
 #include <iostream>
 #include <stdlib.h>
 
 #define DEFAULT_THREAD_COUNT 5;
 
-#define TEST_URL "http://mirrors.cnnic.cn/apache//httpd/httpd-2.4.23.tar.gz"
-#define TEST_PATH "/home/scutech/Downloads/test.tar.gz"
+//test url: "http://mirrors.cnnic.cn/apache//httpd/httpd-2.4.23.tar.gz"
+
+using namespace std;
+
+static void display_usage()
+{
+    cout <<
+        "Usage: my_downloader [URL] [OPTION]...\n"
+        "options include:\n"
+        "    -c [COUNT], specify thread count used for downloading\n"
+        "    -o [PATH], specify the output file path to save\n"
+        << endl;
+}
+
+static int make_file_path(const string &url, string &path)
+{
+    int pos = url.find_last_of('/');
+    char *cwd = getcwd(NULL, 0);
+    if (cwd) {
+        path = cwd;
+        path.append(url.substr(pos));
+        free(cwd);
+        return 0;
+    }
+
+    std::cout << "cant get current working directory" << std::endl;
+    return -1;
+}
+
+static int parse_args(int argc, char **argv, string &url, string &path, int &cnt)
+{
+    int ch;
+    while((ch = getopt(argc, argv, "c:o:")) != -1) {
+        switch(ch) {
+            case 'c':
+                cnt = atoi(optarg);
+                break;
+            case 'o':
+                path = optarg;
+                break;
+            default:
+                cout << "ignore unsupported options :" << argv[optind] << endl;
+                break;
+        }
+    }
+
+    if (optind >= argc) {
+        display_usage();
+        return -1;
+    }
+
+    url = argv[optind];
+    return 0;
+}
 
 int main(int argc, char **argv)
 {
-	if (argc < 3) {
-		std::cout << "usage:\nmy_downloader remote_url local_path [thread_count]" << std::endl;
-		return 0;
-	}
+    string remote_url = "";
+    string local_path = "";
+    int thread_count = DEFAULT_THREAD_COUNT;
 
-	int thread_count = DEFAULT_THREAD_COUNT;
+    if ( parse_args(argc, argv, remote_url, local_path, thread_count) < 0 ) {
+        return -1;
+    }
 
-	if (argc >= 4) {
-		thread_count = atoi(argv[3]);
-		if (thread_count <= 0) {
-			thread_count = DEFAULT_THREAD_COUNT;
-		}
-	}
-#ifdef USE_MMAP
-	std::cout << "USE_MMAP" << std::endl;
-	download_manager<mmap_file_handler> manager(argv[1], argv[2], thread_count);
-#else
-	download_manager<file_handler> manager(argv[1], argv[2], thread_count);
-#endif
+    if ("" == local_path) {
+        if ( make_file_path(remote_url, local_path) < 0) {
+            return -1;
+        }
+    }
 
-	if (manager.init() < 0 || manager.start() < 0) {
-		return -1;
-	}
+    download_manager dm(remote_url.c_str(), local_path.c_str(), thread_count);
+    if (dm.init() < 0 || dm.start() < 0) {
+        return -1;
+    }
 
-	manager.wait_all_task_done();
-	manager.destroy();
-	return 0;
+    dm.wait_all_tasks_done();
+    dm.destroy();
+    return 0;
 }
